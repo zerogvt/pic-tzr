@@ -20,6 +20,7 @@ public class Controller implements Listener {
 		}
 		if (event.character == SWT.ESC) {
 			state = State.EXIT;
+			System.exit(0);
 		}
 		if (event.character == 'n' && state != State.FWD) {
 			state = State.FWD;

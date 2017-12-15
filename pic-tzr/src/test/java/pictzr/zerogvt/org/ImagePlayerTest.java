@@ -5,9 +5,9 @@ package pictzr.zerogvt.org;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class PicTeaserTest {
+public class ImagePlayerTest {
     @Test public void testSomeLibraryMethod() {
-        PicTeaser classUnderTest = new PicTeaser();
+        ImagePlayer classUnderTest = new ImagePlayer();
         //assertTrue("someLibraryMethod should return 'true'", classUnderTest.isImage(filepath)());
     }
 }
