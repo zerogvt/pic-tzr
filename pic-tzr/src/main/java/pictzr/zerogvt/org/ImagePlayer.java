@@ -24,22 +24,23 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import org.imgscalr.*;
 
 
-public class ImagePlayer {
+public class ImagePlayer implements Listener {
 	public enum FocusPolicy { SCALE, NO_SCALE, CRAZY_SCALE };
 	private static Logger logger = Logger.getLogger(Logger.class.getName());
-	Controller controller = new Controller();
 	int nextimg = 0;
 	int times[];
 	FocusPolicy policy[];
 	String imgfile=null;
 	static Object o = new Object();
-
+	private State state = State.PLAY;;
 
 	String setText(){
 		return Integer.toString(o.hashCode());
@@ -195,13 +196,13 @@ public class ImagePlayer {
 		policy = new FocusPolicy[numImgs];
 		createScenario(imagefiles);
 		nextimg=0;
-		shell.addListener(SWT.KeyDown, controller);
+		shell.addListener(SWT.KeyDown, this);
 		display.timerExec(1000, new Runnable() {
 			int rep=0;
 			String nextimgpath;
 			public void run() {
 				ImagePlayer.FocusPolicy random_policy = ImagePlayer.FocusPolicy.values()[new Random().nextInt(ImagePlayer.FocusPolicy.values().length)];
-				if (controller.state == State.FWD) {
+				if (state == State.FWD) {
 					rep = 0;
 				}
 				if (rep==0 || rep%3==0) {
@@ -221,7 +222,7 @@ public class ImagePlayer {
 				}
 				displayImage(nextimgpath, shell, display, canvas, screen_h, screen_w, random_policy);// random_policy);
 				canvas.redraw();
-				while (controller.state == State.PAUSE) {
+				while (state == State.PAUSE) {
 					try {
 						Thread.sleep(10);
 					} catch (InterruptedException e) {
@@ -229,7 +230,7 @@ public class ImagePlayer {
 					}
 					display.readAndDispatch();
 				}
-				if (controller.state == State.EXIT) {
+				if (state == State.EXIT) {
 					logger.log(Level.INFO, "Esc - bye");
 					System.exit(0);
 				}
@@ -339,4 +340,27 @@ public class ImagePlayer {
 			return bufferedImage;
 		}
 	}
+
+
+	@Override
+	public void handleEvent(Event event) {
+		if (event.character == SWT.SPACE && state != State.PAUSE) {
+			state = State.PAUSE;
+		}
+		else if (event.character == SWT.SPACE && state == State.PAUSE) {
+			state = State.PLAY;
+		}
+		if (event.character == SWT.ESC) {
+			state = State.EXIT;
+			System.exit(0);
+		}
+		if (event.character == 'n' && state != State.FWD) {
+			state = State.FWD;
+		}
+		else if (event.character == 'n' && state == State.FWD) {
+			state = State.PLAY;
+		}
+		logger.log(Level.INFO, "State after event: " + state.toString());
+	}  
 }
+
