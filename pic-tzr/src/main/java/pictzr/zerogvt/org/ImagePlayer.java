@@ -105,31 +105,48 @@ public class ImagePlayer implements Listener {
 		createScenario(imagefiles);
 		nextimg=0;
 		shell.addListener(SWT.KeyDown, this);
-		display.timerExec(1000, new Runnable() {
+		display.timerExec(100, new Runnable() {
 			int rep=0;
 			String nextimgpath;
 			public void run() {
-				ImagePlayer.FocusPolicy random_policy = ImagePlayer.FocusPolicy.values()[new Random().nextInt(ImagePlayer.FocusPolicy.values().length)];
-				if (state == State.FWD) {
+				int secstonext = 1000;
+				ImagePlayer.FocusPolicy random_policy = ImagePlayer.FocusPolicy.SCALE;
+				if (state == State.FFWD) {
 					rep = 0;
+					secstonext = 1000;
+				} else {
+					rep++;
+					if (nextimg != 0)
+						secstonext = Utils.getRandomMinMax(3000, 8000);
 				}
 				if (rep==0 || rep%3==0) {
+					if (state == State.REPEAT) {
+						
+					}
+					else if ( state == State.BACK)
+						if (nextimg-1 < 0)
+							nextimg = imagefiles.size()-1;
+						else {
+							nextimg--;
+						}
+					else if (state == State.FFWD || state == State.PLAY)
+						if (nextimg + 1 >= imagefiles.size())
+							nextimg = 0;
+						else {
+							nextimg++;
+						}
 					nextimgpath=imagefiles.get(nextimg);
-					nextimg++;
 				}
-				rep++;
-				int secstonext = Utils.getRandomMinMax(3000, 8000);
-				if (rep%3==1) {
+				logger.log(Level.INFO, Integer.toString(nextimg));
+				if (rep%3==0) {
 					random_policy = ImagePlayer.FocusPolicy.CRAZY_SCALE;
 				}
-				if (rep%3==2) {
+				if (rep%3==1) {
 					random_policy = ImagePlayer.FocusPolicy.NO_SCALE;
 				}
-				if (rep%3==0) {
+				if (rep%3==2) {
 					random_policy = ImagePlayer.FocusPolicy.SCALE;
 				}
-				TzrImage.displayImage(nextimgpath, shell, display, canvas, screen_h, screen_w, random_policy);// random_policy);
-				canvas.redraw();
 				while (state == State.PAUSE) {
 					try {
 						Thread.sleep(10);
@@ -138,10 +155,8 @@ public class ImagePlayer implements Listener {
 					}
 					display.readAndDispatch();
 				}
-				if (state == State.EXIT) {
-					logger.log(Level.INFO, "Esc - bye");
-					System.exit(0);
-				}
+				TzrImage.displayImage(nextimgpath, shell, display, canvas, screen_h, screen_w, random_policy);
+				canvas.redraw();
 				logger.log(Level.INFO,"next in " + secstonext );
 				display.timerExec(secstonext, this);
 			}
@@ -161,21 +176,29 @@ public class ImagePlayer implements Listener {
 
 	@Override
 	public void handleEvent(Event event) {
-		if (event.character == SWT.SPACE && state != State.PAUSE) {
-			state = State.PAUSE;
-		}
-		else if (event.character == SWT.SPACE && state == State.PAUSE) {
-			state = State.PLAY;
-		}
 		if (event.character == SWT.ESC) {
 			state = State.EXIT;
 			System.exit(0);
 		}
-		if (event.character == 'n' && state != State.FWD) {
-			state = State.FWD;
+		//pause
+		if (event.character == SWT.SPACE && state != State.PAUSE) {
+			state = State.PAUSE;
 		}
-		else if (event.character == 'n' && state == State.FWD) {
+		//unpause
+		else if (event.character == SWT.SPACE && state == State.PAUSE) {
 			state = State.PLAY;
+		}
+		else if (event.character == 'b') {
+			state = State.BACK;
+		}
+		else if (event.character == 'n') {
+			state = State.PLAY;
+		}
+		else if (event.character == 'f') {
+			state = State.FFWD;
+		}
+		else if (event.character == 'r') {
+			state = State.REPEAT;
 		}
 		logger.log(Level.INFO, "State after event: " + state.toString());
 	}  

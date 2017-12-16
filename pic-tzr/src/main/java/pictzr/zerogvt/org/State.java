@@ -1,5 +1,5 @@
 package pictzr.zerogvt.org;
 
 public enum State {
-	PAUSE, PLAY, FWD, BACK, EXIT
+	PAUSE, PLAY, FFWD, BACK, REPEAT, EXIT
 }
