@@ -109,32 +109,32 @@ public class ImagePlayer implements Listener {
 			int rep=0;
 			String nextimgpath;
 			public void run() {
-				int secstonext = 1000;
+				int secstonext = Utils.getRandomMinMax(3000, 8000);
 				ImagePlayer.FocusPolicy random_policy = ImagePlayer.FocusPolicy.SCALE;
 				if (state == State.FFWD) {
 					rep = 0;
 					secstonext = 1000;
 				} else {
 					rep++;
-					if (nextimg != 0)
-						secstonext = Utils.getRandomMinMax(3000, 8000);
+						
 				}
 				if (rep==0 || rep%3==0) {
 					if (state == State.REPEAT) {
-						
 					}
-					else if ( state == State.BACK)
+					else if ( state == State.BACK) {
 						if (nextimg-1 < 0)
 							nextimg = imagefiles.size()-1;
 						else {
 							nextimg--;
 						}
-					else if (state == State.FFWD || state == State.PLAY)
+					}
+					else if (state == State.FFWD || state == State.PLAY) {
 						if (nextimg + 1 >= imagefiles.size())
 							nextimg = 0;
 						else {
 							nextimg++;
 						}
+					}
 					nextimgpath=imagefiles.get(nextimg);
 				}
 				logger.log(Level.INFO, Integer.toString(nextimg));
