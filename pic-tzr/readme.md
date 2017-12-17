@@ -1,0 +1,1 @@
+Zipped gallery archive handy for testing https://snippets.khromov.se/wp-content/uploads/2013/08/stock_pictures_from_morguefile.zip

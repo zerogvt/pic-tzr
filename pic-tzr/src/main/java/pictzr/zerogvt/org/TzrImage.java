@@ -31,6 +31,7 @@ public class TzrImage {
 	static void displayImage(String imgfile, Shell shell, Display display,
 			Canvas canvas, int screenHeight, int screenWidth, 
 			ImagePlayer.FocusPolicy focusPolicy ) {
+		logger.log(Level.INFO, "Asked to display img on path: " + imgfile );
 		Image dispImage = null;
 		if (imgfile==null) return;
 		File f = new File(imgfile);
